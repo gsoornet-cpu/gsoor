@@ -21,6 +21,94 @@
   display: block;
 }
 
+/* Homepage featured video follows the client's Final Demo feature player. */
+.home-video-featured .video-featured-media {
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+.home-video-featured .video-featured-media > img,
+.home-video-featured .video-featured-media > .home-hero-fallback {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.home-video-featured .video-featured-media .playbtn {
+  width: 74px;
+  height: 74px;
+  background: var(--amber);
+  border-color: var(--amber);
+}
+
+.home-video-featured:hover .video-featured-media .playbtn {
+  background: var(--amber-2);
+  border-color: var(--amber-2);
+}
+
+.home-video-featured .video-featured-body h2 {
+  padding-inline-end: 56px;
+}
+
+.home-video-date {
+  display: block;
+  margin-top: 4px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 12px;
+}
+
+.home-video-next {
+  position: absolute;
+  z-index: 4;
+  inset-inline-end: 14px;
+  bottom: 14px;
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--blue);
+  color: #fff;
+  font-size: 24px;
+  line-height: 1;
+  box-shadow: 0 3px 12px rgba(11, 14, 20, 0.28);
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.home-video-next:hover {
+  background: var(--blue-2);
+  transform: translateX(-2px);
+}
+
+@media (max-width: 640px) {
+  .home-video-featured .video-featured-media {
+    height: auto;
+  }
+
+  .home-video-featured .video-featured-media .playbtn {
+    width: 58px;
+    height: 58px;
+    font-size: 20px;
+  }
+
+  .home-video-featured .video-featured-body {
+    padding: 34px 16px 14px;
+  }
+
+  .home-video-featured .video-featured-body h2 {
+    padding-inline-end: 44px;
+  }
+
+  .home-video-next {
+    inset-inline-end: 8px;
+    bottom: 8px;
+    width: 36px;
+    height: 36px;
+  }
+}
+
 /* Real Article data has no image field yet (Phase 1's RSS ingestion never
    extracts one) — this fills the exact same .thumb box the demo's <img>
    would occupy, so card proportions/spacing are pixel-identical to the

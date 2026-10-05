@@ -8,6 +8,7 @@ import { buildOrganizationJsonLd } from "@/lib/seo";
 import { absoluteUrl } from "@/lib/site";
 import { StoryGridCard } from "@/components/StoryGridCard";
 import { HomeHeroSlider } from "@/components/home/HomeHeroSlider";
+import { HomeVideoFeature } from "@/components/home/HomeVideoFeature";
 import { HomePollCard, NewsletterForm } from "@/components/home/HomePollCard";
 import { ServicesBand } from "@/components/home/ServicesBand";
 import { formatArabicDate } from "@/lib/format";
@@ -219,6 +220,8 @@ export default async function HomePage() {
           <DeskGrid stories={desks.mughtarib.slice(0, 6)} label={deskLabels.mughtarib} />
         </div>
       </section>
+
+      <HomeVideoFeature videos={videos.slice(0, 6)} />
 
       <ServicesBand />
       <AtmaenFeature />
