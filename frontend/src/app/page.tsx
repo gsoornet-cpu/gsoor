@@ -187,7 +187,7 @@ export default async function HomePage() {
   const deskSlugs = Object.keys(deskLabels);
   const [newsResult, videoResult, ...deskResults] = await Promise.allSettled([
     getPublishedNews(1, 50),
-    getPublishedVideos(1, 50),
+    getPublishedVideos(1, 12, true), // ONLY the videos an editor chose for the hero, in their order
     ...deskSlugs.map((slug) => getPublishedNews(1, 10, slug)),
   ]);
   const feed = newsResult.status === "fulfilled" ? newsResult.value.items : [];
@@ -197,11 +197,12 @@ export default async function HomePage() {
     return [slug, result?.status === "fulfilled" ? result.value.items : []];
   }));
 
-  // Hero: published CMS-selected videos first; otherwise the latest published news.
-  const heroSlides = videos.length ? videos.slice(0, 7).map((video) => ({
+  // Hero = editor-selected videos ONLY, in the editor's order (CMS > فيديوهات الرئيسية).
+  // News is never used as a stand-in: with no selected videos the whole section is not rendered.
+  const heroSlides = videos.map((video) => ({
     id: video.id, title: video.title, excerpt: video.excerpt, href: `/article/${video.id}/${encodeURIComponent(video.slug)}`,
     imageUrl: video.thumbnailUrl, videoUrl: video.videoUrl, publishedAtUtc: video.publishedAtUtc,
-  })) : feed.slice(0, 7).map((story) => ({ id: story.id, title: story.title, excerpt: story.excerpt, href: articleHref(story), imageUrl: story.imageUrl, publishedAtUtc: story.publishedAtUtc }));
+  }));
 
   const latest = feed.slice(0, 6);
 
@@ -211,7 +212,7 @@ export default async function HomePage() {
   return (
     <main id="main">
       <JsonLd data={buildOrganizationJsonLd()} />
-      <HomeHeroSlider slides={heroSlides} />
+      {heroSlides.length > 0 && <HomeHeroSlider slides={heroSlides} />}
 
       <section className="section tight on-surface">
         <div className="wrap">

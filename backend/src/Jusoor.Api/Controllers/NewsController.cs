@@ -34,10 +34,10 @@ public class NewsController : ControllerBase
     [HttpGet("videos")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPublishedVideos(
-        [FromQuery] int page, [FromQuery] int pageSize, CancellationToken cancellationToken)
+        [FromQuery] int page, [FromQuery] int pageSize, [FromQuery] bool home, CancellationToken cancellationToken)
     {
         var result = await _mediator.Send(
-            new GetPublishedVideosQuery(page == 0 ? 1 : page, pageSize == 0 ? 18 : pageSize), cancellationToken);
+            new GetPublishedVideosQuery(page == 0 ? 1 : page, pageSize == 0 ? 18 : pageSize, home), cancellationToken);
         return Ok(result);
     }
 

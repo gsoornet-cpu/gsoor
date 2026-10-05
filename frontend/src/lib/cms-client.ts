@@ -165,6 +165,23 @@ async function call<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
+export interface CmsHomeVideo { articleId: string; title: string; publishedAtUtc: string; thumbnailUrl: string | null; homeVideoOrder: number | null; }
+
+export const cmsHomeVideos = {
+  async list(): Promise<CmsHomeVideo[]> {
+    const response = await fetch("/cms-api/home-videos", { credentials: "same-origin", cache: "no-store" });
+    if (!response.ok) throw new CmsError(await readError(response), response.status);
+    return (await response.json()) as CmsHomeVideo[];
+  },
+  async save(articleIds: string[]): Promise<void> {
+    const response = await fetch("/cms-api/home-videos", {
+      method: "PUT", credentials: "same-origin", cache: "no-store",
+      headers: { "Content-Type": "application/json" }, body: JSON.stringify({ articleIds }),
+    });
+    if (!response.ok) throw new CmsError(await readError(response), response.status);
+  },
+};
+
 export const cms = {
   getSeo: (id: string) => call<CmsArticleSeo>(`/${id}/seo`),
   listCategories: async () => {

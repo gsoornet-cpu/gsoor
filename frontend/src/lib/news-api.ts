@@ -100,8 +100,10 @@ export async function getPublishedNews(page = 1, pageSize = 20, desk?: string, s
   };
 }
 
-export async function getPublishedVideos(page = 1, pageSize = 18): Promise<PagedResult<PublishedVideo>> {
+/** `homeOnly`: just the videos an editor placed in the homepage hero, in the editor's order. */
+export async function getPublishedVideos(page = 1, pageSize = 18, homeOnly = false): Promise<PagedResult<PublishedVideo>> {
   const query = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
+  if (homeOnly) query.set("home", "true");
   return apiFetch<PagedResult<PublishedVideo>>(`/api/v1/news/videos?${query.toString()}`);
 }
 

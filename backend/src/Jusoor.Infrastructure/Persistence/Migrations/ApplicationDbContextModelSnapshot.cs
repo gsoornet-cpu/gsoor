@@ -326,6 +326,9 @@ namespace Jusoor.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("FeaturedVideoMediaAssetId")
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("HomeVideoOrder")
+                        .HasColumnType("integer");
+
                     b.Property<DateTimeOffset?>("LastModifiedAtUtc")
                         .HasColumnType("timestamp with time zone");
 

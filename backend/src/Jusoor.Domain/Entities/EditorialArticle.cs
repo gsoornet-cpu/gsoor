@@ -50,6 +50,12 @@ public class EditorialArticle : AuditableEntity
     public List<string> PresentationDesks { get; private set; } = new();
     /// <summary>The embedded video selected for the public video hub; null means article-only placement.</summary>
     public Guid? FeaturedVideoMediaAssetId { get; private set; }
+
+    /// <summary>
+    /// Editor-curated position (1-based) in the homepage video hero. Null = not on the homepage.
+    /// Only meaningful while the article is Published with a ready featured video.
+    /// </summary>
+    public int? HomeVideoOrder { get; private set; }
     public EditorialMediaAsset? FeaturedVideoMediaAsset { get; private set; }
 
     /// <summary>
@@ -181,7 +187,17 @@ public class EditorialArticle : AuditableEntity
         PresentationDesks = EditorialDesk.Catalog.Keys.Where(desks.Contains).ToList();
     }
 
-    public void SetFeaturedVideoMediaAsset(Guid? mediaAssetId) => FeaturedVideoMediaAssetId = mediaAssetId;
+    public void SetFeaturedVideoMediaAsset(Guid? mediaAssetId)
+    {
+        FeaturedVideoMediaAssetId = mediaAssetId;
+        if (mediaAssetId is null) HomeVideoOrder = null; // no video -> cannot stay in the video hero
+    }
+
+    public void SetHomeVideoOrder(int? order)
+    {
+        if (order is < 1) throw new ArgumentOutOfRangeException(nameof(order), "Order is 1-based.");
+        HomeVideoOrder = order;
+    }
 
     /// <summary>
     /// Sets the article's cover image (stored in <see cref="SocialImageUrl"/>, which the public feed,

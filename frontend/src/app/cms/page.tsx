@@ -108,6 +108,7 @@ export default function CmsDashboardPage() {
         <h1>إدارة الأخبار</h1>
         <div className="cms-actions">
           {session.roles?.includes("SeoEditor") && <Link className="cms-btn" href="/cms/seo">تحرير SEO</Link>}
+          {session.roles?.some((role) => ["SeniorEditor", "ManagingEditor", "EditorInChief"].includes(role)) && <Link className="cms-btn" href="/cms/home-videos">فيديوهات الرئيسية</Link>}
           <div className="cms-filter">
             <label htmlFor="status" className="cms-hint">
               الحالة

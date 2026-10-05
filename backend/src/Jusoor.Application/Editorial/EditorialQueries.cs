@@ -177,7 +177,8 @@ public class GetPublishedNewsQueryHandler : IRequestHandler<GetPublishedNewsQuer
     }
 }
 
-public sealed record GetPublishedVideosQuery(int Page = 1, int PageSize = 18)
+/// <param name="HomeOnly">True = only the videos an editor placed in the homepage hero, in the editor's order.</param>
+public sealed record GetPublishedVideosQuery(int Page = 1, int PageSize = 18, bool HomeOnly = false)
     : IRequest<PagedResult<PublicVideoSummaryDto>>;
 
 public sealed class GetPublishedVideosQueryValidator : AbstractValidator<GetPublishedVideosQuery>
@@ -212,11 +213,17 @@ public sealed class GetPublishedVideosQueryHandler
                           && article.PublishedAtUtc != null
                           && asset.Kind == EditorialMediaKind.Video
                           && asset.Status == EditorialMediaStatus.Ready
-                    orderby article.PublishedAtUtc descending, article.Id descending
                     select new { Article = article, Asset = asset };
 
-        var totalCount = await query.CountAsync(cancellationToken);
-        var rows = await query.Skip((request.Page - 1) * request.PageSize)
+        // Homepage hero: ONLY editor-selected videos, in the editor's order. The video hub
+        // (/videos) keeps listing every published video, newest first.
+        var ordered = request.HomeOnly
+            ? query.Where(r => r.Article.HomeVideoOrder != null)
+                .OrderBy(r => r.Article.HomeVideoOrder).ThenByDescending(r => r.Article.PublishedAtUtc)
+            : query.OrderByDescending(r => r.Article.PublishedAtUtc).ThenByDescending(r => r.Article.Id);
+
+        var totalCount = await ordered.CountAsync(cancellationToken);
+        var rows = await ordered.Skip((request.Page - 1) * request.PageSize)
             .Take(request.PageSize).ToListAsync(cancellationToken);
         var items = rows.Select(row => new PublicVideoSummaryDto(
             row.Article.Id,
