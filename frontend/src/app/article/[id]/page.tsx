@@ -13,6 +13,14 @@ import { EDITORIAL_BYLINE, SITE_NAME, absoluteUrl } from "@/lib/site";
 // Always fresh: an unpublished article must stop resolving immediately.
 export const dynamic = "force-dynamic";
 
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
 /**
  * Per-article <title>, description, canonical URL and Open Graph data
  * (Slice 18, spec §16). Before this every article shared the site-wide title.
@@ -106,7 +114,11 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
   }
 
   const story = result.article;
-  if (!slug || slug !== story.slug) permanentRedirect(articleUrl(story));
+  // Next hands non-ASCII dynamic segments over percent-encoded (Arabic slugs are the norm here:
+  // the backend builds them from the title). Comparing the raw param with the stored slug made
+  // EVERY Arabic article "non-canonical" -> permanentRedirect to the very same URL -> endless
+  // redirect loop and a blank page. Decode before comparing.
+  if (!slug || safeDecode(slug).normalize("NFC") !== story.slug.normalize("NFC")) permanentRedirect(articleUrl(story));
 
   const publishedLabel = formatArabicDate(story.publishedAtUtc);
   const readMinutes = estimateReadMinutes(htmlToPlainText(story.body));

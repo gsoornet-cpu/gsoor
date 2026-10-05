@@ -20,7 +20,8 @@ public sealed record UpdateEditorialArticleCommand(
     IReadOnlyList<string> ActorRoles,
     string? EditReason = null,
     string[]? PresentationDesks = null,
-    Guid? FeaturedVideoMediaAssetId = null) : IRequest<EditorialArticleResult>;
+    Guid? FeaturedVideoMediaAssetId = null,
+    string? CoverImageUrl = null) : IRequest<EditorialArticleResult>;
 
 public class UpdateEditorialArticleCommandValidator : AbstractValidator<UpdateEditorialArticleCommand>
 {
@@ -31,6 +32,7 @@ public class UpdateEditorialArticleCommandValidator : AbstractValidator<UpdateEd
         RuleFor(x => x.Title).NotEmpty().MaximumLength(EditorialArticle.TitleMaxLength);
         RuleFor(x => x.Summary).MaximumLength(EditorialArticle.SummaryMaxLength);
         RuleFor(x => x.Body).NotEmpty().MaximumLength(EditorialArticle.BodyMaxLength);
+        RuleFor(x => x.CoverImageUrl).MaximumLength(2048);
         RuleFor(x => x.CountryId).NotNull().When(x => x.CityId.HasValue)
             .WithMessage("A city cannot be set without its country.");
         RuleFor(x => x.EditReason).MaximumLength(EditorialArticleRevision.ReasonMaxLength);
@@ -121,13 +123,26 @@ public class UpdateEditorialArticleCommandHandler : IRequestHandler<UpdateEditor
             return new EditorialArticleResult(EditorialOutcome.Conflict, EditorialSupport.ToDto(article));
         }
 
+        // CoverImageUrl: null = leave unchanged (older clients), "" = remove, otherwise set.
+        string? newCover = article.SocialImageUrl;
+        if (request.CoverImageUrl is not null)
+        {
+            newCover = string.IsNullOrWhiteSpace(request.CoverImageUrl) ? null : request.CoverImageUrl.Trim();
+            if (newCover is not null && (!Uri.TryCreate(newCover, UriKind.Absolute, out var coverUri) || coverUri.Scheme is not ("https" or "http")))
+            {
+                return new EditorialArticleResult(EditorialOutcome.InvalidBody, null);
+            }
+        }
+        var coverChanged = newCover != article.SocialImageUrl;
+
         var contentChanged = article.Title != request.Title
             || article.Summary != request.Summary
             || article.Body != body
             || article.CountryId != request.CountryId
             || article.CityId != request.CityId
             || desksChanged
-            || featuredVideoChanged;
+            || featuredVideoChanged
+            || coverChanged;
 
         // Decision D4: every edit made while the article is live first captures
         // the version readers are about to lose. The snapshot is built BEFORE the
@@ -149,6 +164,7 @@ public class UpdateEditorialArticleCommandHandler : IRequestHandler<UpdateEditor
         article.UpdateContent(request.Title, request.Summary, body, request.CountryId, request.CityId);
         article.SetPresentationDesks(requestedDesks);
         article.SetFeaturedVideoMediaAsset(request.FeaturedVideoMediaAssetId);
+        if (coverChanged) article.SetCoverImage(newCover);
 
         if (requiresReapproval)
         {

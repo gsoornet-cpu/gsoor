@@ -31,7 +31,8 @@ public class EditorialArticlesController : ControllerBase
     /// <param name="EditReason">Optional note recorded with the revision when a PUBLISHED article is edited (decision D4).</param>
     /// <param name="Body">HTML from the CMS editor. It is sanitized server-side (decision D2) — only the allow-listed tags/attributes survive.</param>
     public record SaveArticleRequest(string Title, string? Summary, string Body, Guid? CountryId, Guid? CityId,
-        string? EditReason = null, string[]? PresentationDesks = null, Guid? FeaturedVideoMediaAssetId = null);
+        string? EditReason = null, string[]? PresentationDesks = null, Guid? FeaturedVideoMediaAssetId = null,
+        string? CoverImageUrl = null);
     public record SchedulePublicationRequest(DateTimeOffset ScheduledPublishAtUtc, string? Reason = null);
 
     [HttpGet]
@@ -90,7 +91,7 @@ public class EditorialArticlesController : ControllerBase
         var result = await _mediator.Send(
             new CreateEditorialArticleCommand(
                 request.Title, request.Summary, request.Body, request.CountryId, request.CityId, userId, _currentUser.Roles,
-                request.PresentationDesks, request.FeaturedVideoMediaAssetId),
+                request.PresentationDesks, request.FeaturedVideoMediaAssetId, request.CoverImageUrl),
             cancellationToken);
 
         return result.Outcome == EditorialOutcome.Success
@@ -114,7 +115,7 @@ public class EditorialArticlesController : ControllerBase
         var result = await _mediator.Send(
             new UpdateEditorialArticleCommand(
                 id, request.Title, request.Summary, request.Body, request.CountryId, request.CityId, userId, _currentUser.Roles,
-                request.EditReason, request.PresentationDesks, request.FeaturedVideoMediaAssetId),
+                request.EditReason, request.PresentationDesks, request.FeaturedVideoMediaAssetId, request.CoverImageUrl),
             cancellationToken);
 
         return ToActionResult(result);

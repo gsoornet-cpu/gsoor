@@ -184,3 +184,9 @@
 /* Lead story / lamma card are real links now (the demo used div + onclick). */
 a.lead-story, a.lamma-card, a.editorial-top-card, a.editorial-news-row { text-decoration: none; }
 .event-item { color: inherit; text-decoration: none; }
+
+/* Hero main: the click target is a real <button> for videos (opens the cinematic player). */
+button.hero-main-button { width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+button.hero-main-button:focus-visible { outline: 2px solid var(--amber); outline-offset: -3px; }
+/* Readable headline even when a news slide has no cover image (dark fallback tile). */
+.hero-main .home-hero-fallback + .hero-main-link { z-index: 1; }

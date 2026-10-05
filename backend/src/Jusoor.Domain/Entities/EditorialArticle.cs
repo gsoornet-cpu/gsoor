@@ -183,6 +183,25 @@ public class EditorialArticle : AuditableEntity
 
     public void SetFeaturedVideoMediaAsset(Guid? mediaAssetId) => FeaturedVideoMediaAssetId = mediaAssetId;
 
+    /// <summary>
+    /// Sets the article's cover image (stored in <see cref="SocialImageUrl"/>, which the public feed,
+    /// the article page and social cards all read). Null/blank removes it. Kept separate from
+    /// <see cref="UpdateSeo"/> so a writer can attach a cover without SEO rights or a primary category.
+    /// </summary>
+    public void SetCoverImage(string? imageUrl)
+    {
+        if (string.IsNullOrWhiteSpace(imageUrl))
+        {
+            SocialImageUrl = null;
+            return;
+        }
+
+        var trimmed = imageUrl.Trim();
+        if (trimmed.Length > 2048 || !Uri.TryCreate(trimmed, UriKind.Absolute, out var uri) || uri.Scheme is not ("https" or "http"))
+            throw new ArgumentException("Cover image URL must be an absolute HTTP(S) URL.", nameof(imageUrl));
+        SocialImageUrl = trimmed;
+    }
+
     private static string Slugify(string value)
     {
         var normalized = value.Trim().ToLowerInvariant().Normalize(System.Text.NormalizationForm.FormKC);

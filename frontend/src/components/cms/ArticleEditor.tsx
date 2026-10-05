@@ -116,6 +116,8 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
     editReason: article?.status === "Published" ? editReason.trim() || null : null,
     presentationDesks,
     featuredVideoMediaAssetId: featuredVideoMediaAssetId || null,
+    // Saved together with the article so the cover can never be lost to a separate (SEO) call.
+    coverImageUrl: coverImageUrl.trim(),
   });
 
   function updateBody(nextBody: string) {
@@ -126,22 +128,12 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
 
   const save = () =>
     run(async () => {
-      let saved: CmsArticle;
-      if (article) {
-        saved = await cms.update(article.id, input());
-      } else {
-        saved = await cms.create(input());
-      }
-      if (roles?.some((role) => ["SeoEditor", "SeniorEditor", "ManagingEditor", "EditorInChief"].includes(role))) {
-        const seo = await cms.getSeo(saved.id);
-        const { id: _id, title: _title, status: _status, categories: _categories, ...seoInput } = seo;
-        const updatedSeo = await cms.updateSeo(saved.id, { ...seoInput, socialImageUrl: coverImageUrl.trim() || null });
-        setCoverImageUrl(updatedSeo.socialImageUrl ?? "");
-      }
+      const saved: CmsArticle = article
+        ? await cms.update(article.id, input())
+        : await cms.create(input());
+      // fill() re-reads the cover from what the server actually stored, so the preview
+      // can never show a cover that was not really saved.
       fill(saved);
-      if (roles?.some((role) => ["SeoEditor", "SeniorEditor", "ManagingEditor", "EditorInChief"].includes(role))) {
-        setCoverImageUrl(coverImageUrl.trim());
-      }
       if (!article) router.replace(`/cms/articles/${saved.id}`);
       else setNotice("تم حفظ التعديلات.");
     });

@@ -276,6 +276,8 @@ export interface ArticleInput {
   editReason?: string | null;
   presentationDesks: string[];
   featuredVideoMediaAssetId: string | null;
+  /** Cover image URL. "" removes it; omitted leaves it unchanged. Saved with the article itself (no SEO role needed). */
+  coverImageUrl?: string | null;
 }
 
 export const PRESENTATION_DESKS = [

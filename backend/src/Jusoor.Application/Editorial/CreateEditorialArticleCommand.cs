@@ -17,7 +17,8 @@ public sealed record CreateEditorialArticleCommand(
     string ActorUserId,
     IReadOnlyList<string> ActorRoles,
     string[]? PresentationDesks = null,
-    Guid? FeaturedVideoMediaAssetId = null) : IRequest<EditorialArticleResult>;
+    Guid? FeaturedVideoMediaAssetId = null,
+    string? CoverImageUrl = null) : IRequest<EditorialArticleResult>;
 
 public class CreateEditorialArticleCommandValidator : AbstractValidator<CreateEditorialArticleCommand>
 {
@@ -27,6 +28,7 @@ public class CreateEditorialArticleCommandValidator : AbstractValidator<CreateEd
         RuleFor(x => x.Title).NotEmpty().MaximumLength(EditorialArticle.TitleMaxLength);
         RuleFor(x => x.Summary).MaximumLength(EditorialArticle.SummaryMaxLength);
         RuleFor(x => x.Body).NotEmpty().MaximumLength(EditorialArticle.BodyMaxLength);
+        RuleFor(x => x.CoverImageUrl).MaximumLength(2048);
         RuleFor(x => x.CountryId).NotNull().When(x => x.CityId.HasValue)
             .WithMessage("A city cannot be set without its country.");
         RuleFor(x => x.PresentationDesks).Must(desks => desks is null ||
@@ -88,6 +90,8 @@ public class CreateEditorialArticleCommandHandler : IRequestHandler<CreateEditor
             request.Title, request.Summary, body, request.ActorUserId, request.CountryId, request.CityId);
         article.SetPresentationDesks(request.PresentationDesks);
         article.SetFeaturedVideoMediaAsset(request.FeaturedVideoMediaAssetId);
+        try { article.SetCoverImage(request.CoverImageUrl); }
+        catch (ArgumentException) { return new EditorialArticleResult(EditorialOutcome.InvalidBody, null); }
 
         if (await _context.EditorialArticles.AnyAsync(a => a.Slug == article.Slug, cancellationToken))
         {
