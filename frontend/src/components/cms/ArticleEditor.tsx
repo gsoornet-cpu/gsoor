@@ -36,6 +36,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
   const [reason, setReason] = useState("");
   const [ready, setReady] = useState(articleId === null);
   const [title, setTitle] = useState("");
+  const [authorName, setAuthorName] = useState("");
   const [summary, setSummary] = useState("");
   const [body, setBody] = useState("");
   const [presentationDesks, setPresentationDesks] = useState<string[]>([]);
@@ -56,6 +57,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
   function fill(a: CmsArticle) {
     setArticle(a);
     setTitle(a.title);
+    setAuthorName(a.authorName ?? "");
     setSummary(a.summary ?? "");
     setBody(a.body);
     setPresentationDesks(a.presentationDesks ?? []);
@@ -107,6 +109,7 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
 
   const input = () => ({
     title: title.trim(),
+    authorName: authorName.trim() || null,
     summary: summary.trim() || null,
     body: body.trim(),
     // Country/city pickers arrive with the geography admin API; the API accepts null.
@@ -302,6 +305,11 @@ export function ArticleEditor({ articleId }: { articleId: string | null }) {
         <span className="cms-hint">
           {title.length} / {TITLE_MAX}
         </span>
+      </div>
+
+      <div className="cms-field">
+        <label htmlFor="author-name">اسم الكاتب (اختياري)</label>
+        <input id="author-name" value={authorName} maxLength={120} disabled={!canEditContent || busy} onChange={(event) => setAuthorName(event.target.value)} placeholder="اتركه فارغًا لعرض هيئة تحرير جسور" />
       </div>
 
       <div className="cms-field">

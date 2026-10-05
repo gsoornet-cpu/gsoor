@@ -123,7 +123,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
   const publishedLabel = formatArabicDate(story.publishedAtUtc);
   const readMinutes = estimateReadMinutes(htmlToPlainText(story.body));
   const place = story.cityNameAr ?? story.countryNameAr ?? null;
-  const byline = EDITORIAL_BYLINE;
+  const byline = story.authorName || EDITORIAL_BYLINE;
 
   return (
     <main id="main">

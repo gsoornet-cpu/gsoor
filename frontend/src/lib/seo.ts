@@ -79,7 +79,11 @@ export function buildArticleJsonLd(article: NewsDetail): JsonLdObject | null {
     inLanguage: SITE_LANGUAGE,
     datePublished: toIsoDate(article.publishedAtUtc),
     dateModified: toIsoDate(article.updatedAtUtc),
-    author: { "@type": "Organization", name: EDITORIAL_BYLINE, url: home },
+    author: {
+      "@type": article.authorName ? "Person" : "Organization",
+      name: article.authorName || EDITORIAL_BYLINE,
+      url: home,
+    },
     publisher: { "@type": "Organization", name: SITE_NAME, url: home, logo: { "@type": "ImageObject", url: logo } },
     contentLocation: place ? { "@type": "Place", name: place } : undefined,
   };

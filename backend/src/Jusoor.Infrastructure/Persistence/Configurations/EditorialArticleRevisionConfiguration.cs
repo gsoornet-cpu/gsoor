@@ -17,6 +17,7 @@ public class EditorialArticleRevisionConfiguration : IEntityTypeConfiguration<Ed
         builder.Property(r => r.ArticleId).IsRequired();
         builder.Property(r => r.RevisionNumber).IsRequired();
         builder.Property(r => r.Title).IsRequired().HasMaxLength(Jusoor.Domain.Entities.EditorialArticle.TitleMaxLength);
+        builder.Property(r => r.AuthorName).HasMaxLength(120);
         builder.Property(r => r.Summary).HasMaxLength(Jusoor.Domain.Entities.EditorialArticle.SummaryMaxLength);
         builder.Property(r => r.Body).IsRequired();
         builder.Property(r => r.BodyFormat).IsRequired().HasConversion<int>(); // see EditorialArticleConfiguration

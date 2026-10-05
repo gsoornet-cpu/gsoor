@@ -170,7 +170,7 @@ public class GetPublishedNewsQueryHandler : IRequestHandler<GetPublishedNewsQuer
             return new PublicNewsSummaryDto(
                 a.Id, a.Title, excerpt, a.PublishedAtUtc!.Value,
                 country?.NameAr, country?.NameEn, city?.NameAr, city?.NameEn)
-                { Slug = a.Slug, PresentationDesks = a.PresentationDesks.ToArray(), ImageUrl = a.SocialImageUrl };
+                { Slug = a.Slug, PresentationDesks = a.PresentationDesks.ToArray(), ImageUrl = a.SocialImageUrl, AuthorName = a.AuthorName };
         }).ToList();
 
         return new PagedResult<PublicNewsSummaryDto>(items, request.Page, request.PageSize, totalCount);
@@ -220,7 +220,9 @@ public sealed class GetPublishedVideosQueryHandler
         var ordered = request.HomeOnly
             ? query.Where(r => r.Article.HomeVideoOrder != null)
                 .OrderBy(r => r.Article.HomeVideoOrder).ThenByDescending(r => r.Article.PublishedAtUtc)
-            : query.OrderByDescending(r => r.Article.PublishedAtUtc).ThenByDescending(r => r.Article.Id);
+            : query.OrderBy(r => r.Article.HomeVideoOrder == null ? 1 : 0)
+                .ThenBy(r => r.Article.HomeVideoOrder)
+                .ThenByDescending(r => r.Article.PublishedAtUtc).ThenByDescending(r => r.Article.Id);
 
         var totalCount = await ordered.CountAsync(cancellationToken);
         var rows = await ordered.Skip((request.Page - 1) * request.PageSize)
@@ -233,7 +235,7 @@ public sealed class GetPublishedVideosQueryHandler
             row.Asset.Caption,
             row.Asset.Credit,
             row.Article.PublishedAtUtc!.Value,
-            row.Article.Slug) { ThumbnailUrl = row.Article.SocialImageUrl }).ToArray();
+            row.Article.Slug) { ThumbnailUrl = row.Article.SocialImageUrl, AuthorName = row.Article.AuthorName }).ToArray();
         return new PagedResult<PublicVideoSummaryDto>(items, request.Page, request.PageSize, totalCount);
     }
 }
@@ -304,6 +306,7 @@ public class GetPublishedNewsByIdQueryHandler : IRequestHandler<GetPublishedNews
             isArchived ? article.ArchivedAtUtc : null)
         {
             Slug = article.Slug, SeoTitle = article.SeoTitle, SeoDescription = article.SeoDescription,
+            AuthorName = article.AuthorName,
             CanonicalUrl = article.CanonicalUrl, SocialTitle = article.SocialTitle,
             SocialDescription = article.SocialDescription, SocialImageUrl = article.SocialImageUrl,
             NoIndex = article.NoIndex, NoFollow = article.NoFollow,

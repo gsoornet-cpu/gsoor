@@ -25,6 +25,7 @@ public class EditorialArticleRevision : BaseEntity
     public int RevisionNumber { get; private set; }
 
     public string Title { get; private set; } = null!;
+    public string? AuthorName { get; private set; }
     public string? Summary { get; private set; }
     public string Body { get; private set; } = null!;
 
@@ -81,6 +82,7 @@ public class EditorialArticleRevision : BaseEntity
             ArticleId = article.Id,
             RevisionNumber = revisionNumber,
             Title = article.Title,
+            AuthorName = article.AuthorName,
             Summary = article.Summary,
             Body = article.Body,
             BodyFormat = article.BodyFormat,

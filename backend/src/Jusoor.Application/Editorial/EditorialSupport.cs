@@ -32,6 +32,7 @@ internal static class EditorialSupport
         a.CreatedAtUtc, a.LastModifiedAtUtc, a.PublishedAtUtc)
     {
         ScheduledPublishAtUtc = a.ScheduledPublishAtUtc,
+        AuthorName = a.AuthorName,
         Slug = a.Slug, SeoTitle = a.SeoTitle, SeoDescription = a.SeoDescription, CanonicalUrl = a.CanonicalUrl,
         SocialTitle = a.SocialTitle, SocialDescription = a.SocialDescription, SocialImageUrl = a.SocialImageUrl,
         NoIndex = a.NoIndex, NoFollow = a.NoFollow, PrimaryCategoryId = a.PrimaryCategoryId,

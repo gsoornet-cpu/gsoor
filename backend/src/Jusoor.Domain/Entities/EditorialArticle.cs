@@ -29,6 +29,8 @@ public class EditorialArticle : AuditableEntity
 
     public string Title { get; private set; } = null!;
     public string? Summary { get; private set; }
+    /// <summary>Public byline entered by the newsroom; null uses the site's newsroom default.</summary>
+    public string? AuthorName { get; private set; }
 
     // Slice 23 SEO metadata. Null overrides inherit the newsroom title/summary.
     public string? SeoTitle { get; private set; }
@@ -129,6 +131,13 @@ public class EditorialArticle : AuditableEntity
     public void UpdateContent(string title, string? summary, string body, Guid? countryId, Guid? cityId)
     {
         ApplyContent(title, summary, body, countryId, cityId);
+    }
+
+    public void SetAuthorName(string? authorName)
+    {
+        var normalized = string.IsNullOrWhiteSpace(authorName) ? null : authorName.Trim();
+        if (normalized is { Length: > 120 }) throw new ArgumentException("Author name cannot exceed 120 characters.", nameof(authorName));
+        AuthorName = normalized;
     }
 
     public void UpdateSeo(string? seoTitle, string? seoDescription, string slug, string? canonicalUrl,

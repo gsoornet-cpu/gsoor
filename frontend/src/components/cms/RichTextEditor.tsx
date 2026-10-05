@@ -171,7 +171,7 @@ export function RichTextEditor({
 
   function setEmbed() {
     if (!editor) return;
-    const value = window.prompt("ألصق رابط التضمين الرسمي من YouTube أو Vimeo أو X أو Instagram أو Facebook أو TikTok:");
+    const value = window.prompt("ألصق رابط فيديو YouTube أو رابط التضمين الرسمي من Vimeo أو X أو Instagram أو Facebook أو TikTok:");
     if (!value) return;
     const safe = normalizeEmbedUrl(value.trim());
     if (!safe) { setMediaError("رابط التضمين غير مدعوم. استخدم رابط embed رسميًا من أحد المزودين المعتمدين."); setMediaOpen(true); return; }
@@ -370,7 +370,22 @@ function normalizeEmbedUrl(value: string): { src: string; provider: string } | n
     if (u.protocol !== "https:" || u.username || u.password || u.port || u.hash) return null;
     const path = u.pathname.replace(/\/$/, "");
     let provider = "";
-    if (["www.youtube-nocookie.com", "youtube-nocookie.com"].includes(u.hostname) && /^\/embed\/[\w-]{11}$/.test(path)) provider = "YouTube";
+    if (["youtube.com", "www.youtube.com", "m.youtube.com", "youtube-nocookie.com", "www.youtube-nocookie.com"].includes(u.hostname)) {
+      const embed = path.match(/^\/(?:embed|shorts|live)\/([\w-]{11})$/);
+      const watch = path === "/watch" ? u.searchParams.get("v") : null;
+      const id = embed?.[1] ?? watch;
+      if (id && /^[\w-]{11}$/.test(id)) {
+        u.hostname = "www.youtube-nocookie.com";
+        u.pathname = `/embed/${id}`;
+        u.search = "";
+        provider = "YouTube";
+      }
+    } else if (u.hostname === "youtu.be" && /^\/[\w-]{11}$/.test(path)) {
+      u.hostname = "www.youtube-nocookie.com";
+      u.pathname = `/embed/${path.slice(1)}`;
+      u.search = "";
+      provider = "YouTube";
+    }
     else if (u.hostname === "player.vimeo.com" && /^\/video\/\d{1,20}$/.test(path)) provider = "Vimeo";
     else if (u.hostname === "platform.twitter.com" && path === "/embed/Tweet.html" && /^\d{1,30}$/.test(u.searchParams.get("id") ?? "")) provider = "X";
     else if (u.hostname === "www.instagram.com" && /^\/(p|reel)\/[\w-]{3,40}\/embed$/.test(path)) provider = "Instagram";

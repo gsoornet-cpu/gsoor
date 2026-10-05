@@ -116,6 +116,7 @@ public class GetEditorialArticleRevisionQueryHandler : IRequestHandler<GetEditor
             : new EditorialRevisionResult(EditorialOutcome.Success, new EditorialRevisionDto(
                 revision.RevisionNumber, revision.Title, revision.Summary, ArticleBodyContent.ToHtml(revision.Body, revision.BodyFormat),
                 revision.CountryId, revision.CityId,
-                revision.EditedByUserId, revision.EditorRoles, revision.Reason, revision.EditedAtUtc));
+                revision.EditedByUserId, revision.EditorRoles, revision.Reason, revision.EditedAtUtc)
+            { AuthorName = revision.AuthorName });
     }
 }

@@ -187,7 +187,7 @@ export default async function HomePage() {
   const deskSlugs = Object.keys(deskLabels);
   const [newsResult, videoResult, ...deskResults] = await Promise.allSettled([
     getPublishedNews(1, 50),
-    getPublishedVideos(1, 12, true), // ONLY the videos an editor chose for the hero, in their order
+    getPublishedVideos(1, 12), // Include every published article whose video was selected in the article editor.
     ...deskSlugs.map((slug) => getPublishedNews(1, 10, slug)),
   ]);
   const feed = newsResult.status === "fulfilled" ? newsResult.value.items : [];
@@ -197,8 +197,7 @@ export default async function HomePage() {
     return [slug, result?.status === "fulfilled" ? result.value.items : []];
   }));
 
-  // Hero = editor-selected videos ONLY, in the editor's order (CMS > فيديوهات الرئيسية).
-  // News is never used as a stand-in: with no selected videos the whole section is not rendered.
+  // Only videos explicitly selected on their articles are returned by the videos API.
   const heroSlides = videos.map((video) => ({
     id: video.id, title: video.title, excerpt: video.excerpt, href: `/article/${video.id}/${encodeURIComponent(video.slug)}`,
     imageUrl: video.thumbnailUrl, videoUrl: video.videoUrl, publishedAtUtc: video.publishedAtUtc,

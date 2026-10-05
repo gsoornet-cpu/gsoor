@@ -7,6 +7,7 @@ import type { PagedResult, StorySummary } from "./stories-api";
 interface NewsSummaryDto {
   id: string;
   title: string;
+  authorName: string | null;
   excerpt: string | null;
   publishedAtUtc: string;
   countryNameAr: string | null;
@@ -29,6 +30,7 @@ export interface NewsCorrection {
 export interface NewsDetail {
   id: string;
   title: string;
+  authorName: string | null;
   summary: string | null;
   body: string;
   publishedAtUtc: string;
@@ -63,6 +65,7 @@ export interface NewsDetail {
 export interface PublishedVideo {
   id: string;
   title: string;
+  authorName: string | null;
   excerpt: string | null;
   videoUrl: string;
   caption: string | null;

@@ -94,8 +94,21 @@ public sealed class EditorialMediaReferenceValidator(
             || !string.IsNullOrEmpty(uri.UserInfo) || !uri.IsDefaultPort || !string.IsNullOrEmpty(uri.Fragment)) return false;
         var host = uri.IdnHost.ToLowerInvariant();
         var path = uri.AbsolutePath.TrimEnd('/');
-        if (host is "www.youtube-nocookie.com" or "youtube-nocookie.com" && Regex.IsMatch(path, @"^/embed/[A-Za-z0-9_-]{11}$"))
+        if (host is "www.youtube-nocookie.com" or "youtube-nocookie.com" or "www.youtube.com" or "youtube.com" or "m.youtube.com")
+        {
+            var id = Regex.Match(path, @"^/(?:embed|shorts|live)/([A-Za-z0-9_-]{11})$").Groups[1].Value;
+            if (id.Length == 0 && path == "/watch") id = GetSingleQuery(uri, "v");
+            if (!Regex.IsMatch(id, @"^[A-Za-z0-9_-]{11}$")) return false;
             provider = "YouTube";
+            normalized = $"https://www.youtube-nocookie.com/embed/{id}";
+            return true;
+        }
+        else if (host == "youtu.be" && Regex.IsMatch(path, @"^/[A-Za-z0-9_-]{11}$"))
+        {
+            provider = "YouTube";
+            normalized = $"https://www.youtube-nocookie.com/embed/{path[1..]}";
+            return true;
+        }
         else if (host == "player.vimeo.com" && Regex.IsMatch(path, @"^/video/[0-9]{1,20}$"))
             provider = "Vimeo";
         else if (host == "platform.twitter.com" && path == "/embed/Tweet.html"

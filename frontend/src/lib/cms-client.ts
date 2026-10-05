@@ -18,6 +18,7 @@ export const STATUS_META: Record<ArticleStatus, { label: string; badge: string }
 export interface CmsArticleSummary {
   id: string;
   title: string;
+  authorName?: string | null;
   summary: string | null;
   status: ArticleStatus;
   ownerUserId: string;
@@ -83,6 +84,7 @@ export interface HistoryRevision {
 /** The article exactly as it read BEFORE the edit that created this revision. */
 export interface RevisionSnapshot extends HistoryRevision {
   summary: string | null;
+  authorName: string | null;
   body: string;
   countryId: string | null;
   cityId: string | null;
@@ -285,6 +287,7 @@ async function categoryCall<T = unknown>(path: string, init: RequestInit): Promi
 
 export interface ArticleInput {
   title: string;
+  authorName: string | null;
   summary: string | null;
   body: string;
   countryId: string | null;

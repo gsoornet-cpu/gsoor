@@ -21,7 +21,8 @@ public sealed record UpdateEditorialArticleCommand(
     string? EditReason = null,
     string[]? PresentationDesks = null,
     Guid? FeaturedVideoMediaAssetId = null,
-    string? CoverImageUrl = null) : IRequest<EditorialArticleResult>;
+    string? CoverImageUrl = null,
+    string? AuthorName = null) : IRequest<EditorialArticleResult>;
 
 public class UpdateEditorialArticleCommandValidator : AbstractValidator<UpdateEditorialArticleCommand>
 {
@@ -33,6 +34,7 @@ public class UpdateEditorialArticleCommandValidator : AbstractValidator<UpdateEd
         RuleFor(x => x.Summary).MaximumLength(EditorialArticle.SummaryMaxLength);
         RuleFor(x => x.Body).NotEmpty().MaximumLength(EditorialArticle.BodyMaxLength);
         RuleFor(x => x.CoverImageUrl).MaximumLength(2048);
+        RuleFor(x => x.AuthorName).MaximumLength(120);
         RuleFor(x => x.CountryId).NotNull().When(x => x.CityId.HasValue)
             .WithMessage("A city cannot be set without its country.");
         RuleFor(x => x.EditReason).MaximumLength(EditorialArticleRevision.ReasonMaxLength);
@@ -136,6 +138,7 @@ public class UpdateEditorialArticleCommandHandler : IRequestHandler<UpdateEditor
         var coverChanged = newCover != article.SocialImageUrl;
 
         var contentChanged = article.Title != request.Title
+            || article.AuthorName != (string.IsNullOrWhiteSpace(request.AuthorName) ? null : request.AuthorName.Trim())
             || article.Summary != request.Summary
             || article.Body != body
             || article.CountryId != request.CountryId
@@ -162,6 +165,7 @@ public class UpdateEditorialArticleCommandHandler : IRequestHandler<UpdateEditor
         var requiresReapproval = article.Status == EditorialArticleStatus.Approved && contentChanged;
         var previousStatus = article.Status;
         article.UpdateContent(request.Title, request.Summary, body, request.CountryId, request.CityId);
+        article.SetAuthorName(request.AuthorName);
         article.SetPresentationDesks(requestedDesks);
         article.SetFeaturedVideoMediaAsset(request.FeaturedVideoMediaAssetId);
         if (coverChanged) article.SetCoverImage(newCover);

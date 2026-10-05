@@ -329,6 +329,10 @@ namespace Jusoor.Infrastructure.Persistence.Migrations
                     b.Property<int?>("HomeVideoOrder")
                         .HasColumnType("integer");
 
+                    b.Property<string>("AuthorName")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
                     b.Property<DateTimeOffset?>("LastModifiedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -505,6 +509,10 @@ namespace Jusoor.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(300)
                         .HasColumnType("character varying(300)");
+
+                    b.Property<string>("AuthorName")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.HasKey("Id");
 

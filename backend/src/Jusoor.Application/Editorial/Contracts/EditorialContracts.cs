@@ -33,6 +33,7 @@ public sealed record EditorialArticleDto(
     DateTimeOffset? PublishedAtUtc)
 {
     public DateTimeOffset? ScheduledPublishAtUtc { get; init; }
+    public string? AuthorName { get; init; }
     public string Slug { get; init; } = "";
     public string? SeoTitle { get; init; }
     public string? SeoDescription { get; init; }
@@ -80,6 +81,7 @@ public sealed record PublicNewsSummaryDto(
     public string[] PresentationDesks { get; init; } = Array.Empty<string>();
     /// <summary>Public editorial cover image, sourced from the article's social image setting.</summary>
     public string? ImageUrl { get; init; }
+    public string? AuthorName { get; init; }
 }
 
 /// <summary>Published article with a CMS-selected, verified video media asset for the public video hub.</summary>
@@ -88,6 +90,7 @@ public sealed record PublicVideoSummaryDto(
     DateTimeOffset PublishedAtUtc, string Slug)
 {
     public string? ThumbnailUrl { get; init; }
+    public string? AuthorName { get; init; }
 }
 
 /// <summary>
@@ -112,6 +115,7 @@ public sealed record PublicNewsDetailDto(
     DateTimeOffset? ArchivedAtUtc)
 {
     public string Slug { get; init; } = "";
+    public string? AuthorName { get; init; }
     public string? SeoTitle { get; init; }
     public string? SeoDescription { get; init; }
     public string? CanonicalUrl { get; init; }
@@ -243,7 +247,10 @@ public sealed record EditorialRevisionDto(
     string EditedByUserId,
     string EditorRoles,
     string? Reason,
-    DateTimeOffset EditedAtUtc);
+    DateTimeOffset EditedAtUtc)
+{
+    public string? AuthorName { get; init; }
+}
 
 public sealed record EditorialCorrectionDto(
     Guid Id,
